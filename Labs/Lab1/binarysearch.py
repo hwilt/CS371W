@@ -19,11 +19,23 @@ def binarysearch(arr, target, low=0, high=-1):
 	"""
 	if high == -1:
 		high = len(arr)-1 # Start off all the way to the right
+
+	if low > high:
+		return -1
+	
+	mid = (low+high)//2
+	if arr[mid] == target:
+		return mid
+	elif arr[mid] > target:
+		return binarysearch(arr, target, low, mid-1)
+	else:
+		return binarysearch(arr, target, mid+1, high)
+
 		
 	
 """
 def binarysearch(arr, target):
-	"""
+	" ""
 	arr: list
 		A sorted array of numbers
 	target: float
@@ -33,17 +45,25 @@ def binarysearch(arr, target):
 	-------
 	Index of one of the occurrences of target if it exists in
 	the array, or -1 otherwise
-	"""
+	" ""
 	ret = -1
-	for index in range(len(arr)):
-		if(arr[index] == target):
-			ret = index
-			print("method print: ",arr[index] ,ret)
+	high = len(arr)-1
+	low = 0
+	while low <= high:
+		mid = (low+high)//2
+		if arr[mid] == target:
+			ret = mid
+			low = high+1
+		elif arr[mid] > target:
+			high = mid-1
+		else:
+			low = mid+1
 	return ret
 """		
 		
 arr = sorted(np.random.randint(0,100,70))
-print(arr)
+#print(arr)
+
 for i in range(100):
 	binaryreturn = binarysearch(arr, i)
 	if(binaryreturn == -1):
