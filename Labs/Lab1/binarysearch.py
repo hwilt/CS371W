@@ -19,17 +19,17 @@ def binarysearch(arr, target, low=0, high=-1):
 	"""
 	if high == -1:
 		high = len(arr)-1 # Start off all the way to the right
-
-	if low > high:
-		return -1
-	
-	mid = (low+high)//2
-	if arr[mid] == target:
-		return mid
-	elif arr[mid] > target:
-		return binarysearch(arr, target, low, mid-1)
+	res = -1
+	if low == high:
+		if arr[low] == target:
+			res = low
 	else:
-		return binarysearch(arr, target, mid+1, high)
+		mid = (low+high)//2
+		if arr[mid] < target:
+			res = binarysearch(arr, target, mid+1, high)
+		else:
+			res = binarysearch(arr, target, low, mid)
+	return res
 
 		
 	
