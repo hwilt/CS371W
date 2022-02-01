@@ -3,7 +3,10 @@ class StrWrapper:
         self.s = s
     
     def hash_code(self):
-        return 0 ## TODO: Fill this in
+        res = 0
+        for char in self.s:
+            res = res*31 + ord(char)
+        return res
 
     def __eq__(self, other):
         return self.s == other.s

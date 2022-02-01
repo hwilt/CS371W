@@ -1,3 +1,5 @@
+from HashTable import *
+
 class Wizard:
     def __init__(self, name, month, day, year):
         self.name = name
@@ -31,5 +33,14 @@ def get_all_wizards():
 
 if __name__ == '__main__':
     wizards = get_all_wizards()
+    table = HashTable(20) # You could of course change the number of bins to be something different from 20
     for w in wizards:
-        print(w, w.hash_code())
+        table.add(w)
+    dean = Wizard("Dean Thomas", 12, 2, 1988)
+    barack = Wizard("Barack Obama", 8, 4, 1961)
+    print("Dean Thomas is a wizard: ", table.find(dean))
+    print("Removing dean twice over...")
+    table.remove(dean)
+    table.remove(dean)
+    print("Dean Thomas is a wizard: ", table.find(dean))
+    print("Barack Obama is a wizard: ", table.find(barack))
