@@ -1,3 +1,5 @@
+from harrypotter import *
+
 class Node:
     def __init__(self, obj):
         self.obj = obj
@@ -16,7 +18,6 @@ class LinkedList:
         self.head = new_node
     
     def remove(self, obj):
-        ###TODO: REMOVE AN OBJECT FROM THE LIST
         node = self.head
         prev = None
         found = False
@@ -103,4 +104,22 @@ class HashTable:
         """
         hashcode = obj.hash_code()
         return self._bins[hashcode%self._n_bins].find(obj)
-    
+
+
+   
+def main():
+    wizards = get_all_wizards()
+    table = HashTable(20) # You could of course change the number of bins to be something different from 20
+    for w in wizards:
+        table.add(w)
+    dean = Wizard("Dean Thomas", 12, 2, 1988)
+    barack = Wizard("Barack Obama", 8, 4, 1961)
+    print("Dean Thomas is a wizard: ", table.find(dean))
+    print("Removing dean twice over...")
+    table.remove(dean)
+    table.remove(dean)
+    print("Dean Thomas is a wizard: ", table.find(dean))
+    print("Barack Obama is a wizard: ", table.find(barack))
+
+if __name__ == '__main__':
+    main()

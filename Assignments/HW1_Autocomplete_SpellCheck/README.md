@@ -4,7 +4,7 @@ Link to Assignment on [Tralie's Website](https://ursinus-cs371-s2022.github.io/C
 ### Part 1: Autocomplete<br>
 Files included in Part 1: autocomplete.py<br>Enter `python autocomplete.py` into your terminal<br>Enter 1 for searching a word prefix and Enter 2 for searching a cities prefix.<br>
 ### Part 2: SpellCheck<br>
-Step 1: HashTable Class<br>Files included in Step 1: harrypotter.py, Hashtable.py <br>Enter `python harrypotter.py` into your termninal<br>
+Step 1: HashTable Class<br>Files included in Step 1: harrypotter.py, Hashtable.py <br>Enter `python HashTable.py` into your termninal<br>
 
 Step 2: String Hash Codes<br>Files included in Step 2: strwrapper.py<br> Enter `python strwrapper.py` into your terminal<br>
 
