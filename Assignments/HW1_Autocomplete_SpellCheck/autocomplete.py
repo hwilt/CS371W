@@ -1,15 +1,23 @@
 class Autocomplete:
-    def __init__(self, filename):
+    def __init__(self, filename, num_words=-1):
         # Open file, preprocess contents
         # save contents as local variables
         fin = open(filename)
         lines = fin.readlines()
         fin.close()
         self._words = []
+        self._numWords = 0
         for line in lines:
-            _list = line.strip().split("\t")
-            _tuple = (str(_list[0]), int(_list[1]))
-            self._words.append(_tuple)
+            if num_words == -1:
+                _list = line.strip().split("\t")
+                _tuple = (str(_list[0]), int(_list[1]))
+                self._words.append(_tuple)
+            else:
+                _list = line.strip().split("\t")
+                _tuple = (str(_list[0]), int(_list[1]))
+                if self._numWords <= num_words:
+                    self._words.append(_tuple)
+                    self._numWords += 1
         self._words.sort()
 
     def binarysearch(self, arr, target, low=0, high=-1):
@@ -62,9 +70,10 @@ class Autocomplete:
         # Otherwise, return index of last word that starts with prefix
         res = -1
         for i in range(firstindex, len(self._words)):
-            if self._words[i][0].startswith(prefix):
+            if not self._words[i][0].startswith(prefix):
                 #print(self._words[i]) #testing purposes
-                res = i
+                res = i - 1
+                break
         return res
    
     def all_matches(self, prefix):
