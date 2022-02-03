@@ -20,22 +20,54 @@ class Autocomplete:
                     self._numWords += 1
         self._words.sort()
 
-    def binarysearch(self, arr, target, low=0, high=-1):
+    def binarysearch_first(self, arr, target, low=0, high=-1):
         if high == -1:
             high = len(arr)-1
         res = -1
         if low == high:
-            if arr[low][0].startswith(target):
+            string = arr[low][0]
+            if string[0:len(target)] == target:
                 res = low
         else:
             mid = (low+high)//2
-            #print(arr[mid])
             if arr[mid][0] < target:
-                res = self.binarysearch(arr, target, mid+1, high)
+                res = self.binarysearch_first(arr, target, mid+1, high)
             else:
-                res = self.binarysearch(arr, target, low, mid)
+                res = self.binarysearch_first(arr, target, low, mid)
         return res
     
+    def binarysearch_last(self, arr, target, low=0, high=-1):
+        if high == -1:
+            high = len(arr)-1
+        res = -1
+        if(low <= high):
+            mid = (low+high)//2
+            string = arr[mid][0]
+            if string[0:len(target)] == target or string[0:len(target)] < target:
+                res = mid
+            elif arr[mid][0] > target:
+                res = self.binarysearch_last(arr, target, low, mid-1)
+            else:
+                res = self.binarysearch_last(arr, target, mid+1, high)
+        return res
+
+
+        """
+        if low == high:
+            string = arr[low][0]
+            if string[0:len(target)] == target:
+                res = high
+        else:    
+            mid = (low+high)//2
+            string = arr[mid][0]
+            print(string)
+            if string[0:len(target)] < target:
+                res = self.binarysearch_last(arr, target, mid+1, high)
+            else:
+                res = self.binarysearch_last(arr, target, low, mid)
+        return res
+        """
+
     def __len__(self):
         '''
         Returns the number of words in the dictionary
@@ -58,7 +90,7 @@ class Autocomplete:
         # If no such word exists, return -1
         # Otherwise, return index of first word that starts with prefix
         res = -1
-        res = self.binarysearch(self._words,prefix)
+        res = self.binarysearch_first(self._words, prefix)
         return res
     
     def lastindex(self, prefix, firstindex):
@@ -68,12 +100,14 @@ class Autocomplete:
         # Find the last word in the dictionary that starts with prefix
         # If no such word exists, return -1
         # Otherwise, return index of last word that starts with prefix
+        
         res = -1
         for i in range(firstindex, len(self._words)):
             if not self._words[i][0].startswith(prefix):
                 #print(self._words[i]) #testing purposes
                 res = i - 1
                 break
+        
         return res
    
     def all_matches(self, prefix):
@@ -84,13 +118,13 @@ class Autocomplete:
         # If no such word exists, return empty list
         # Otherwise, return list of all words that start with prefix
         res = []
-        firstindex = self.firstindex(prefix)
+        firstindex = self.binarysearch_first(self._words,prefix)
         if firstindex == -1:
             res = []
         else:
             lastindex = self.lastindex(prefix, firstindex)
-            for i in range(firstindex, lastindex+1):
-                res.append(self._words[i])
+            print(firstindex,lastindex+1)
+            res = self._words[firstindex:lastindex+1]
         return res
 
 def citiesPrefix(prefix):
