@@ -40,10 +40,10 @@ class Autocomplete:
         if high == -1:
             high = len(arr)-1
         res = -1
-        if(low <= high):
+        while low != high:
             mid = (low+high)//2
             string = arr[mid][0]
-            if string[0:len(target)] == target or string[0:len(target)] < target:
+            if string[0:len(target)] == target:
                 res = mid
             elif arr[mid][0] > target:
                 res = self.binarysearch_last(arr, target, low, mid-1)
