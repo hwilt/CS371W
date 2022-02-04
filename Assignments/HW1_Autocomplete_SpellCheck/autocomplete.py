@@ -125,12 +125,12 @@ class Autocomplete:
             lastindex = self.lastindex(prefix, firstindex)
             #print(firstindex,lastindex+1)
             res = self._words[firstindex:lastindex+1]
+            res.sort(key = lambda x: x[1], reverse = True)
         return res
 
 def citiesPrefix(prefix):
     a = Autocomplete("cities.txt")
     matches = a.all_matches(prefix)
-    matches.sort(key = lambda x: x[1], reverse = True)
     i = 1
     for match in matches:
         print(i, ":", match)
@@ -140,7 +140,6 @@ def wordsPrefix(prefix):
     a = Autocomplete("words.txt")
     #print(a.firstindex("urs"), a.lastindex("urs", a.firstindex("urs")))
     matches = a.all_matches(prefix)
-    matches.sort(key = lambda x: x[1], reverse = True)
     i = 1
     for match in matches:
         print(i, ":", match)
