@@ -123,7 +123,7 @@ class Autocomplete:
             res = []
         else:
             lastindex = self.lastindex(prefix, firstindex)
-            print(firstindex,lastindex+1)
+            #print(firstindex,lastindex+1)
             res = self._words[firstindex:lastindex+1]
         return res
 
