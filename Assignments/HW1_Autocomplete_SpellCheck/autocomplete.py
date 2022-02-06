@@ -24,49 +24,35 @@ class Autocomplete:
         if high == -1:
             high = len(arr)-1
         res = -1
-        if low == high:
-            string = arr[low][0]
-            if string[0:len(target)] == target:
-                res = low
-        else:
-            mid = (low+high)//2
-            if arr[mid][0] < target:
-                res = self.binarysearch_first(arr, target, mid+1, high)
+        
+        while(low <= high):
+            mid = (low + high) // 2
+            string = arr[mid][0]
+            if string[0:len(target)] > target:
+                high = mid - 1
+            elif string[0:len(target)] < target:
+                low = mid + 1
             else:
-                res = self.binarysearch_first(arr, target, low, mid)
+                res = mid
+                high = mid - 1
         return res
     
-    def binarysearch_last(self, arr, target, low=0, high=-1):
+    def binarysearch_last(self, arr, target, low = 0, high = -1):
         if high == -1:
             high = len(arr)-1
         res = -1
-        while low != high:
-            mid = (low+high)//2
+        
+        while(low <= high):
+            mid = (low + high) // 2
             string = arr[mid][0]
-            if string[0:len(target)] == target:
+            if string[0:len(target)] > target:
+                high = mid - 1
+            elif string[0:len(target)] < target:
+                low = mid + 1
+            else:
                 res = mid
-            elif arr[mid][0] > target:
-                res = self.binarysearch_last(arr, target, low, mid-1)
-            else:
-                res = self.binarysearch_last(arr, target, mid+1, high)
+                low = mid + 1
         return res
-
-
-        """
-        if low == high:
-            string = arr[low][0]
-            if string[0:len(target)] == target:
-                res = high
-        else:    
-            mid = (low+high)//2
-            string = arr[mid][0]
-            print(string)
-            if string[0:len(target)] < target:
-                res = self.binarysearch_last(arr, target, mid+1, high)
-            else:
-                res = self.binarysearch_last(arr, target, low, mid)
-        return res
-        """
 
     def __len__(self):
         '''
@@ -122,8 +108,8 @@ class Autocomplete:
         if firstindex == -1:
             res = []
         else:
-            lastindex = self.lastindex(prefix, firstindex)
-            #print(firstindex,lastindex+1)
+            lastindex = self.binarysearch_last(self._words, prefix, firstindex)
+            print(firstindex,lastindex+1)
             res = self._words[firstindex:lastindex+1]
             res.sort(key = lambda x: x[1], reverse = True)
         return res
