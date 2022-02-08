@@ -1,6 +1,8 @@
+# Single list, each element is the ID of the correspanding object
 class MyDisjointSet:
     def __init__(self, N):
         self.N = N
+        self._ids = list(range(N))
     
     def find(self, i, j):
         """
@@ -26,4 +28,11 @@ class MyDisjointSet:
         j: int
             Index of second element
         """
-        pass # TODO: Fill this in
+        #if i and j have different IDs, merge them
+        idx_i = self._ids[i]
+        idx_j = self._ids[j]
+        if idx_i != idx_j:
+            #merge the two sets
+            for k, id_k in enumerate(self._ids):
+                if id_k == idx_j:
+                    self._ids[k] = idx_i
