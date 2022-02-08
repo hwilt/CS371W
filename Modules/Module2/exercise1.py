@@ -40,7 +40,7 @@ class MyDisjointSet:
             Index of second element
         """
         res = False
-        for x in self.parent:
+        for x in self._bubbles:
             if len(x) > 1:
                 if i in x and j in x:
                     res = True
