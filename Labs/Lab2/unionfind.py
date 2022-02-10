@@ -15,7 +15,7 @@ class UnionFind():
         root_i = self.root(i)
         root_j = self.root(j)
         if root_i != root_j:
-            self.parent[root_j] = root_i
+            self.parent[root_j] = i
 
     def __str__(self):
         return str(self.parent)
@@ -27,8 +27,8 @@ def main():
     x.union(0,2)
     x.union(1,8)
     x.union(7,8)
-    #x.union(1,6)
-    #x.union(0,1)
+    x.union(1,6)
+    x.union(0,1)
     string = "End:\n" + str(x)
     print(string)
 
