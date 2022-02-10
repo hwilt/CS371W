@@ -27,8 +27,8 @@ def main():
     x.union(0,2)
     x.union(1,8)
     x.union(7,8)
-    x.union(1,6)
-    x.union(0,1)
+    #x.union(1,6)
+    #x.union(0,1)
     string = "End:\n" + str(x)
     print(string)
 

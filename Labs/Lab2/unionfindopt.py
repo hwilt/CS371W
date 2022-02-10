@@ -32,6 +32,8 @@ def main():
 	x.union(7,8)
 	x.union(1,6)
 	x.union(0,1)
+	x.union(6,9)
+	x.union(5,9)
 	string = "End:\n" + str(x)
 	print(string)
 
