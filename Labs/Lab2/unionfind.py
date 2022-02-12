@@ -2,19 +2,25 @@ class UnionFind():
     def __init__(self, n):
         self.n = n
         self.parent = [i for i in range(n)]
+        self._operations = 0
+        self._calls = 0
 
     def root(self, i):
         while i != self.parent[i]:
             i = self.parent[i]
+            self._operations += 1
         return i
 
     def find(self, i, j):
+        self._calls += 1
         return self.root(i) == self.root(j)
 
     def union(self, i, j):
+        self._calls += 1
         root_i = self.root(i)
         root_j = self.root(j)
         if root_i != root_j:
+            self._operations += i + j
             self.parent[root_j] = i
 
     def __str__(self):
