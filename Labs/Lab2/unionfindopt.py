@@ -4,10 +4,13 @@ class UnionFindOpt():
 		self.normal = [i for i in range(n)]
 		self._parent = [i for i in range(n)]
 		self._weights = [1 for i in range(n)]
+		self._operations = 0
+		self._calls = 0
 
 	def root(self, i):
 		rootnot_lowest = []
 		while i != self._parent[i]:
+			self._operations += 1
 			rootnot_lowest.append(i)
 			i = self._parent[i]
 		if rootnot_lowest:
@@ -16,20 +19,24 @@ class UnionFindOpt():
 		return i
 
 	def find(self, i, j):
+		self._calls += 1
 		return self.root(i) == self.root(j)
 
 	def union(self, i, j):
+		self._calls += 1
 		root_i = self.root(i)
 		root_j = self.root(j)
 		if root_i != root_j: #if not in the same root/ group
 			if self._weights[root_j] >= self._weights[root_i]:
+				self._operations += 1
 				self._weights[root_j] += self._weights[root_i]
 				self._weights[root_i] = 0
-				self._parent[root_i] = root_j
+				self._parent[root_i] = j
 			else:
+				self._operations += 1
 				self._weights[root_i] += self._weights[root_j]
 				self._weights[root_j] = 0
-				self._parent[root_j] = root_i
+				self._parent[root_j] = i
 			#self._parent[root_j] = i
 			#self._weights[root_j] += self._weights[root_i]
 			#self._weights[root_j] = 0

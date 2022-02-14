@@ -6,6 +6,7 @@ class UnionFind():
         self._calls = 0
 
     def root(self, i):
+        #self._calls += 1
         while i != self.parent[i]:
             i = self.parent[i]
             self._operations += 1
@@ -20,7 +21,7 @@ class UnionFind():
         root_i = self.root(i)
         root_j = self.root(j)
         if root_i != root_j:
-            self._operations += i + j
+            self._operations += 1
             self.parent[root_j] = i
 
     def __str__(self):
@@ -37,6 +38,9 @@ def main():
     x.union(0,1)
     string = "End:\n" + str(x)
     print(string)
+
+    print(x._calls)
+    print(x._operations)
 
 if __name__ == "__main__":
     main()
