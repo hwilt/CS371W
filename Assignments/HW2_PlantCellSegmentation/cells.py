@@ -69,3 +69,5 @@ if __name__ == '__main__':
     # easier to view the cells against their background
     plt.imshow(permute_labels(labels))
     plt.show()
+
+    

@@ -18,7 +18,7 @@ def A(m, n, counts, memory = {}, do_print = True):
             inner = memory[(m, n-1)]
         else:
             inner = A(m, n-1, counts, memory)
-            memory[m, n-1] = inner
+            memory[(m, n-1)] = inner
         ## TODO: Add memoization here for A(m-1, inner)
         if (m-1, inner) in memory:
             res += memory[(m-1, inner)]
