@@ -53,10 +53,19 @@ def permute_labels(labels):
     """
     return (labels**31) % 833
 
+def get_cell_labels(arr, threshold):
+
 
 ## TODO: Fill in your code here
 
 if __name__ == '__main__':
     I = load_cells_grayscale("Cells.jpg")
     plt.imshow(I, cmap='magma')
+    plt.show()
+    thresh = 0.8
+    I = load_cells_grayscale("Cells.jpg")
+    labels = get_cell_labels(I, thresh)
+    # permute_labels shuffles around the labels to make it 
+    # easier to view the cells against their background
+    plt.imshow(permute_labels(labels))
     plt.show()
