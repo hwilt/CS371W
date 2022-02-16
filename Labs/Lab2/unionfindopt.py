@@ -8,6 +8,14 @@ class UnionFindOpt():
 		self._calls = 0
 
 	def root(self, i):
+		# Recursive Solution
+		if i != self.parent[i]:
+			self._operations += 1
+			parent[i] = root(parent[i])
+		return parent[i]
+
+		"""
+		Looping Solution:
 		rootnot_lowest = []
 		while i != self._parent[i]:
 			self._operations += 1
@@ -17,6 +25,7 @@ class UnionFindOpt():
 			for j in rootnot_lowest:
 				self._parent[j] = i
 		return i
+		"""
 
 	def find(self, i, j):
 		self._calls += 1
