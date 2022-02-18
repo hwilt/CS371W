@@ -57,7 +57,14 @@ class Hanoi:
         3) Recursively move the top n-1 pegs over the bottom-most one
         """
         ## TODO: Fill this in
-        pass
+        if n == 1:
+            target.push(source.pop())
+            self.draw_frame()
+        else:
+            self.solve_rec(source, target, free, n-1)
+            target.push(source.pop())
+            self.draw_frame()
+            self.solve_rec(free, source, target, n-1)
     
     def solve(self):
         """
