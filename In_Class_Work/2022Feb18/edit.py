@@ -54,7 +54,16 @@ def edit(s1, s2):
 
     ## TODO: Extract an optimal sequence of moves.
     ## Backtrace from i = M, j = N, following the arrows, until you get to [0, 0]
-    
+    directions = [[0,-1], [-1,0], [-1,-1]]
+    i = M
+    j = N
+    path = []
+    while not (i == 0 and j == 0):
+        path.appened([i,j])
+        change = directions[moves[i][j]]
+        i += change[0]
+        j += change[1]
+
     return cost
 
 print("Cost = ", edit("school", "fools"))

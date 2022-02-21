@@ -1,4 +1,4 @@
-class UnionFindOpt():
+class UnionFind():
 	def __init__(self, n):
 		self.n = n
 		self.normal = [i for i in range(n)]
@@ -6,10 +6,9 @@ class UnionFindOpt():
 		self._weights = [1 for i in range(n)]
 
 	def root(self, i):
-		if i != self.parent[i]:
-			self._operations += 1
-			parent[i] = root(parent[i])
-		return parent[i]
+		if i != self._parent[i]:
+			self._parent[i] = self.root(self._parent[i])
+		return self._parent[i]
 
 	def find(self, i, j):
 		return self.root(i) == self.root(j)
