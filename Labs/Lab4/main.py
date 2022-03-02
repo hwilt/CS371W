@@ -71,9 +71,9 @@ def dtw(X,Y):
 def main():
 
     # Example 1: Traile vs Bolt
-    '''X = np.array([[0, 2], [17, 0], [25, 0], [31, 0]])
+    X = np.array([[0, 2], [17, 0], [25, 0], [31, 0]])
     Y = np.array([[0, 4], [5, 4], [16, 4], [24, 4], [30, 4]])
-    print(dtw(X, Y))'''
+    print(dtw(X, Y))
 
     # Example 2: Figure 8s
     N = 50
