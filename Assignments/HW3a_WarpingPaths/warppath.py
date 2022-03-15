@@ -57,7 +57,6 @@ def plot_all_warppaths(M, N, paths):
         frames.append(plot)
     ani = animation.ArtistAnimation(fig, frames, interval=250, blit=True, repeat_delay=1000)
     ani.save("paths.gif")
-    plt.show()
 
 def get_all_warppaths(M, N):
     """
@@ -74,7 +73,6 @@ def get_all_warppaths(M, N):
     paths = []
     ## TODO: Fill this in.  Call a recursive function to fill
     ## paths with all possible warping paths
-    
     return paths
 
 if __name__ == '__main__':
