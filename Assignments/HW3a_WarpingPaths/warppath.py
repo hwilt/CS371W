@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from stack import *
 
 def delannoy(M, N):
     """
@@ -58,6 +59,38 @@ def plot_all_warppaths(M, N, paths):
     ani = animation.ArtistAnimation(fig, frames, interval=250, blit=True, repeat_delay=1000)
     ani.save("paths.gif")
 
+
+def get_warppath(moves, i, j, s):
+    """
+    Parameters
+    ----------
+    moves: list of list of [i, j]
+        A list of constructed warping paths
+    i: int
+        The current row in the grid
+    j: int
+        The current column in the grid
+    s: Stack
+        A stack that keeps track of the current path
+
+    Returns
+    -------
+    list of [i, j]
+        A list of warping paths
+    """
+    if i == 0 and j == 0:
+        return s.get_entire_stack()
+    else:
+        s.push([i, j])
+        for move in moves[i][j]:
+            if move == 1:
+                s = get_warppath(moves, i, j-1, s)
+            elif move == 2:
+                s = get_warppath(moves, i-1, j, s)
+            elif move == 3:
+                s = get_warppath(moves, i-1, j-1, s)
+        s.pop()
+
 def get_all_warppaths(M, N):
     """
     Parameters
@@ -71,9 +104,32 @@ def get_all_warppaths(M, N):
     
     """
     paths = []
-    ## TODO: Fill this in.  Call a recursive function to fill
-    ## paths with all possible warping paths
-    
+    ## TODO: Fill this in.  Call a recursive function to fill in paths with all possible warping paths
+    ## Hint: You'll need to use a stack to do this.
+    s = Stack()
+    table = np.zeros((M, N))
+    moves = []
+    for i in range(M):
+        moves.append([])
+        for j in range(N):
+            moves[i].append([])
+    for i in range(M):
+        for j in range(N):
+            moves[i][j] = [0, 0, 0]
+            if i == 0 and j == 0:
+                table[i, j] = 1
+            else:
+                if table[i-1, j] == 1:
+                    moves[i][j][0] = 1
+                if table[i, j-1] == 1:
+                    moves[i][j][1] = 1
+                if table[i-1, j-1] == 1:
+                    moves[i][j][2] = 1
+                table[i, j] = np.sum(moves[i][j])
+    for i in range(M-1):
+        for j in range(N-1):
+            if table[i, j] == 3:
+                paths.append(get_warppath(moves, i, j, s))
     return paths
 
 if __name__ == '__main__':
