@@ -24,7 +24,30 @@ def merge(x, y, i1, mid, i2):
     i2: int
         End of second chunk
     """
-    ## TODO: Fill this in
+    i = i1
+    j = mid+1
+    k = i1
+    while i <= mid and j <= i2:
+        if x[i] < x[j]:
+            y[k] = x[i]
+            i += 1
+        else:
+            y[k] = x[j]
+            j += 1
+        k += 1
+    while i <= mid:
+        y[k] = x[i]
+        i += 1
+        k += 1
+    while j <= i2:
+        y[k] = x[j]
+        j += 1
+        k += 1
+    for i in range(i1, i2+1):
+        x[i] = y[i]
+        
+
+
 
 
 def mergesort_rec(x, y, i1, i2):
@@ -42,7 +65,12 @@ def mergesort_rec(x, y, i1, i2):
     i2: int
         Second index of chunk to sort, inclusive (i2 >= i1)
     """
-    ## TODO: Fill this in
+    if i2 <= i1:
+        return
+    mid = (i1 + i2) // 2
+    mergesort_rec(x, y, i1, mid)
+    mergesort_rec(x, y, mid+1, i2)
+    merge(x, y, i1, mid, i2)
 
 
 
