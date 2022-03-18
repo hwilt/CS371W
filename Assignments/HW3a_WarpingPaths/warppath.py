@@ -77,8 +77,9 @@ def get_warppath(M,N,path,all_paths):
     """
     [i,j] = path[-1]
     if i == M-1 and j == N-1:
-        all_paths.append(path)
-        return
+        all_paths.append(path.copy())
+        #print(all_paths)
+        return 
     if i+1 < M:
         path.append([i+1,j])
         get_warppath(M, N, path, all_paths)
@@ -107,7 +108,8 @@ def get_all_warppaths(M, N):
     ## TODO: Fill this in.  Call a recursive function to fill in paths with all possible warping paths
     path = [[0,0]]
     all_paths = []
-    all_paths = get_warppath(M, N, path, all_paths)
+    get_warppath(M, N, path, all_paths)
+    #print(all_paths)
     return all_paths
 
 if __name__ == '__main__':
