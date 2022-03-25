@@ -83,7 +83,19 @@ def kendall_tau(r1, r2):
     -------
     The Kendall-Tau distance between r1 and r2
     """
-    pass ## TODO: Get rid of pass and fill this in
+    n = len(r1)
+    discordant_pairs = 0
+    for i in range(n):
+        for j in range(i+1, n):
+            if r1[i] > r1[j] and r2[i] > r2[j]:
+                discordant_pairs += 1
+            elif r1[i] < r1[j] and r2[i] < r2[j]:
+                discordant_pairs += 1
+    return discordant_pairs
 
 
-## TODO: Fill everything else in!
+print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
+plt.figure(figsize=(8, 8))
+animals, raters = load_rankings()
+plot_mds_distances(raters, 1)
+plt.show()
