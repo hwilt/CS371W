@@ -114,6 +114,8 @@ def kendall_tau(p1, p2):
                 discordant_pairs += 1
             elif p1[i] < p1[j] and p2[i] < p2[j]:
                 discordant_pairs += 1
+    #normalizing_constant = n*(n-1)/2
+    #return discordant_pairs/normalizing_constant
     return discordant_pairs
 
 
@@ -135,15 +137,13 @@ def diameter(raters):
         for j in range(i+1, N):
             rater2 = rlist[j]
             D[i, j] = kendall_tau(raters[rater1], raters[rater2])
-
     D = D+D.T
-    print(np.max(D))
-    return ret
+    return np.max(np.abs(D))
 
 
-#print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
-plt.figure(figsize=(8,8))
 animals, raters = load_permutations()
+print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
+#plt.figure(figsize=(8,8))
 #plot_mds_distances(raters, 1)
 #plt.show()
 print(diameter(raters))
