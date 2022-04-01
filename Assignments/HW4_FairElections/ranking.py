@@ -139,9 +139,86 @@ def diameter(raters):
     return np.max(np.abs(D))
 
 
+def get_average_ranking(animals, raters):
+    """
+    Compute the average ranking of each animal by each rater
+    
+    Parameters
+    ----------
+    animals: A list of animals in alphabetical order
+    raters: dictionary( 
+        string (Ranker's name): list (This person's permutation as a list of numbers
+                                      corresponding to the indices in animals)
+
+    Returns
+    -------
+    returns out the animals in the order of their average aggregated rankings
+    example = [0,5,2,7,6,3,4,1]
+    """
+    N = len(animals)
+    ret = [0]*N
+    for rater in raters:
+        for i, animal in enumerate(raters[rater]):
+            ret[animal] += i
+    for i in range(N):
+        ret[i] /= len(raters)
+    return np.argsort(ret)
+
+
+def swap(arr, i, j):
+    temp = arr[j]
+    arr[j] = arr[i]
+    arr[i] = temp
+
+def brute_force_kemeny_optimal(animals, raters, dict = {}, idx = 0):
+    """
+    Compute the optimal permutation of animals using the Brute-Force algorithm using recursion
+    Parameters
+    ----------
+    animals: A list of animals in alphabetical order
+    raters: dictionary( 
+        string (Ranker's name): list (This person's permutation as a list of numbers
+                                      corresponding to the indices in animals)
+    dict: dictionary( 
+        int (idx): list
+            A dictionary of permutations of animals
+    idx: int
+        The index of the current permutation
+    
+    Returns
+    -------
+    returns out the animals in the order of their average aggregated rankings
+    example = [0,5,2,7,6,3,4,1]
+    """
+    if idx == len(animals) - 1:
+        return dict
+    for i in range(idx, len(animals)):
+        swap(animals, i, idx)
+        dict[idx] = animals.copy()
+        idx += 1
+        brute_force_kemeny_optimal(animals, raters, dict, idx)
+        swap(animals, i, idx-1)
+    return dict
+
+
 animals, raters = load_permutations()
-print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
+#print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
 #plt.figure(figsize=(8,8))
 #plot_mds_distances(raters, 1)
 #plt.show()
-print(diameter(raters))
+
+print("Part 2:\n",diameter(raters))
+
+rank = get_average_ranking(animals, raters)
+print("Part 3:\n", rank)
+i = 1
+for r in rank:
+    print(i, animals[r])
+    i += 1
+
+brute_rank = brute_force_kemeny_optimal(animals, raters)
+print("\nPart 4:\n", brute_rank)
+i = 1
+for r in brute_rank:
+    print(i, animals[r])
+    i += 1
