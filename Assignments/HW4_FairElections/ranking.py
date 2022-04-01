@@ -89,10 +89,16 @@ def plot_mds_distances(raters, random_state=0):
     plt.title("MDS Projected Kendall-Tau Distances")
 
 
+def get_pair_set(perm):
+    pairs = set([])
+    for i in range(len(perm)):
+        for j in range(i+1, len(perm)):
+            pairs.add((perm[i], perm[j]))
+    return pairs
+
 def kendall_tau(p1, p2):
     """
-    An O(N log N) algorithm for computing the Kendall-Tau Distance
-
+    An O(N^2) algorithm for computing the Kendall-Tau Distance
     Parameters
     ----------
     p1: List of N elements
@@ -106,17 +112,9 @@ def kendall_tau(p1, p2):
     -------
     The Kendall-Tau distance between permutation p1 and p2
     """
-    n = len(p1)
-    discordant_pairs = 0
-    for i in range(n):
-        for j in range(i+1, n):
-            if p1[i] > p1[j] and p2[i] > p2[j]:
-                discordant_pairs += 1
-            elif p1[i] < p1[j] and p2[i] < p2[j]:
-                discordant_pairs += 1
-    #normalizing_constant = n*(n-1)/2
-    #return discordant_pairs/normalizing_constant
-    return discordant_pairs
+    pairs1 = get_pair_set(p1)
+    pairs2 = get_pair_set(p2)
+    return len(pairs1-pairs2)
 
 
 def diameter(raters):
