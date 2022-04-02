@@ -98,7 +98,7 @@ def get_pair_set(perm):
 
 def kendall_tau(p1, p2):
     """
-    An O(N^2) algorithm for computing the Kendall-Tau Distance
+    An O(n log n) algorithm for computing the Kendall-Tau Distance
     Parameters
     ----------
     p1: List of N elements
@@ -170,7 +170,7 @@ def swap(arr, i, j):
     arr[j] = arr[i]
     arr[i] = temp
 
-def brute_force_kemeny_optimal(animals, raters, dict = {}, idx = 0):
+def brute_force_kemeny_optimal(animals, raters, dictionary, idx = 0):
     """
     Compute the optimal permutation of animals using the Brute-Force algorithm using recursion
     Parameters
@@ -191,14 +191,13 @@ def brute_force_kemeny_optimal(animals, raters, dict = {}, idx = 0):
     example = [0,5,2,7,6,3,4,1]
     """
     if idx == len(animals) - 1:
-        return dict
+        return dictionary
     for i in range(idx, len(animals)):
         swap(animals, i, idx)
-        dict[idx] = animals.copy()
-        idx += 1
-        brute_force_kemeny_optimal(animals, raters, dict, idx)
+        dictionary[idx] = animals.copy()
+        brute_force_kemeny_optimal(animals, raters, dictionary, idx+1)
         swap(animals, i, idx-1)
-    return dict
+    return dictionary
 
 
 animals, raters = load_permutations()
@@ -216,7 +215,7 @@ for r in rank:
     print(i, animals[r])
     i += 1
 
-brute_rank = brute_force_kemeny_optimal(animals, raters)
+brute_rank = brute_force_kemeny_optimal(animals, raters, {})
 print("\nPart 4:\n", brute_rank)
 i = 1
 for r in brute_rank:
