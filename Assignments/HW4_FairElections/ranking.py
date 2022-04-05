@@ -88,13 +88,37 @@ def plot_mds_distances(raters, random_state=0):
         plt.text(X[i, 0], X[i, 1], r)
     plt.title("MDS Projected Kendall-Tau Distances")
 
+def merges(arr, y, low, mid, high):
+    i = low
+    j = mid + 1
+    k = low
+    inv = 0
+    while i <= mid and j <= high:
+        if y[i] <= y[j]:
+            arr[k] = y[i]
+            i += 1
+        else:
+            arr[k] = y[j]
+            j += 1
+            inv += mid - i + 1
+        k += 1
+    while i <= mid:
+        arr[k] = y[i]
+        i += 1
+        k += 1
 
-def get_pair_set(perm):
-    pairs = set([])
-    for i in range(len(perm)):
-        for j in range(i+1, len(perm)):
-            pairs.add((perm[i], perm[j]))
-    return pairs
+    for i in range(low, high + 1):
+        y[i] = arr[i]
+    return inv
+
+def mergesort(p1, copy, low, high):
+    if high <= low:
+        return 0
+    mid = (low + high) // 2
+    inv1 = mergesort(p1, copy, low, mid)
+    inv2 = mergesort(p1, copy, mid+1, high)
+    inv3 = merges(p1, copy, low, mid, high)
+    return inv1 + inv2 + inv3
 
 def kendall_tau(p1, p2):
     """
@@ -112,9 +136,15 @@ def kendall_tau(p1, p2):
     -------
     The Kendall-Tau distance between permutation p1 and p2
     """
-    pairs1 = get_pair_set(p1)
-    pairs2 = get_pair_set(p2)
-    return len(pairs1-pairs2)
+    N = len(p1)
+    x = [0]*N
+    
+    j = 0
+    for i in p1:
+        x[p2.index(i)] = j
+        j += 1
+    inv = mergesort(x, x.copy(), 0, N-1)
+    return inv
 
 
 def diameter(raters):
@@ -170,7 +200,25 @@ def swap(arr, i, j):
     arr[j] = arr[i]
     arr[i] = temp
 
-def brute_force_kemeny_optimal(animals, raters, dictionary, idx = 0):
+def permutations(animals, lists, idx = 0):
+    """
+    Permute the animals in the list according to the permutation in lists
+    Parameters
+    ----------
+    animals: A list of animals in alphabetical order
+    lists: A list of permutations of the animals
+    """
+    N = len(animals)
+    if idx == N:
+        #print(animals)
+        pass
+    for i in range(idx, N):
+        swap(animals, i, idx)
+        lists.append(animals.copy())
+        permutations(animals, lists, idx+1)
+        swap(animals, i, idx)
+
+def brute_force_kemeny_optimal(animals, raters):
     """
     Compute the optimal permutation of animals using the Brute-Force algorithm using recursion
     Parameters
@@ -179,32 +227,35 @@ def brute_force_kemeny_optimal(animals, raters, dictionary, idx = 0):
     raters: dictionary( 
         string (Ranker's name): list (This person's permutation as a list of numbers
                                       corresponding to the indices in animals)
-    dict: dictionary( 
-        int (idx): list
-            A dictionary of permutations of animals
-    idx: int
-        The index of the current permutation
     
     Returns
     -------
     returns out the animals in the order of their average aggregated rankings
     example = [0,5,2,7,6,3,4,1]
     """
-    if idx == len(animals) - 1:
-        return dictionary
-    for i in range(idx, len(animals)):
-        swap(animals, i, idx)
-        dictionary[idx] = animals.copy()
-        brute_force_kemeny_optimal(animals, raters, dictionary, idx+1)
-        swap(animals, i, idx-1)
-    return dictionary
+    ret = {}
+    perms = []
+    permutations(animals, perms)
+    #print(perms)
+    lowest_disagreement = float('inf')
+    for perm in perms:
+        disagreement = 0
+        for rater in raters:
+            disagreement += kendall_tau(raters[rater], perm)
+        if disagreement < lowest_disagreement:
+            ret[disagreement] = perm
+    return ret[min(ret)]
+
 
 
 animals, raters = load_permutations()
 #print(kendall_tau([0, 4, 3, 1, 2], [1, 4, 2, 3, 0]))
-#plt.figure(figsize=(8,8))
-#plot_mds_distances(raters, 1)
-#plt.show()
+#print(kendall_tau([0,3,1,2],[2,0,3,1]))
+
+print("Part 1: Plotting MDS Projected Kendall-Tau Distances")
+plt.figure(figsize=(8,8))
+plot_mds_distances(raters, 1)
+plt.show()
 
 print("Part 2:\n",diameter(raters))
 
@@ -215,7 +266,7 @@ for r in rank:
     print(i, animals[r])
     i += 1
 
-brute_rank = brute_force_kemeny_optimal(animals, raters, {})
+brute_rank = brute_force_kemeny_optimal([0,1,2,3,4,5,6,7], raters)
 print("\nPart 4:\n", brute_rank)
 i = 1
 for r in brute_rank:
