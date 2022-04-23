@@ -8,71 +8,191 @@ class PhylogeneticNode:
     """
     A node in a phylogenetic tree
     """
-    def __init__(self):
-        self.data = None
+    def __init__(self, param):
+        self.sim = 0
+        self.key = None
+        if type(param) is str:
+            self.key = param
+        else:
+            self.sim = param
         self.left = None
         self.right = None
-        self.parent = None
-        self.inorder_pos = 0
-        self.needleman_wunsch_score = 0
 
-    def get_inorder(self, keys):
+    def __str__(self):
+        """
+        String is key if key is not None, or blank otherwise
+        """
+        ret = ""
+        if self.key:
+            ret = "{}".format(self.key)
+        return ret
+
+    def compute_y_coords(self, maxsim=[0], y=[0]):
+        """
+        Recursively compute y coordinate of nodes via an inorder
+        traversal, while computing the maximum phylogenetic 
+        similarity as a side effect
+
+        Parameters
+        ----------
+        maxsim: list of [int]
+            Maximum similarity
+        y: list of [int]
+            Current y coordinate
+        """
         if self.left:
-            self.left.get_inorder(keys)
-        self.inorder_pos = len(keys)
-        if self.data:
-            keys.append(self.data)
+            self.left.compute_y_coords(maxsim, y)
+        maxsim[0] = max(maxsim[0], self.sim)
+        self.y = y[0]
+        y[0] += 1
+        if self.right:
+            self.right.compute_y_coords(maxsim, y)
+
+    def compute_x_coords(self, maxsim):
+        """
+        Recursively compute and store the x coordinates
+        of all nodes.  If the nodes are internal, then the
+        x coordinate is the phylogenetic similarity.
+        If the node is a leaf node, then the x coordinate
+        is the maximum phylogenetic similarity among all
+        internal nodes
+
+        Parameters
+        ----------
+        maxsim: int
+            Maximum phylogenetic similarity across all nodes
+        """
+        if self.left:
+            self.left.compute_x_coords(maxsim)
+        if self.right:
+            self.right.compute_x_coords(maxsim)
+        if self.key:
+            self.x = maxsim
         else:
-            keys.append("temp")
-        if self.right:
-            self.right.get_inorder(keys)
-
-    def plot(self, width, depth):
-        y = -depth
-        x = self.inorder_pos
+            self.x = self.sim
+            
+    def draw(self):
+        """
+        Recursively draw phylogenetic tree.  Assumes that the
+        x and y coordinates have been precomputed
+        """
+        x1, y1 = self.x, self.y
         # Draw a dot
-        plt.scatter([x], [y], 50, 'k')
+        plt.scatter(x1, y1, 50, 'k')
         # Draw some text indicating what the key is
-        plt.text(x+width*0.05, y, "{}".format(self.data))
-        # Offset in x
-        dx = width/2**depth        
+        plt.text(x1+10, y1, "{}".format(self))
         if self.left:
-            xnext = self.left.inorder_pos
             # Draw a line segment from my node to this left child
-            plt.plot([x, xnext], [-depth, -depth-1])
-            self.left.plot(width, depth+1)
+            x2, y2 = self.left.x, self.left.y
+            plt.plot([x1, x2], [y1, y2])
+            self.left.draw()
         if self.right:
-            xnext = self.right.inorder_pos
-            # Draw a line segment from my node to this left child
-            plt.plot([x, xnext], [-depth, -depth-1])
-            self.right.plot(width, depth+1)
+            # Draw a line segment from my node to this right child
+            x2, y2 = self.right.x, self.right.y
+            plt.plot([x1, x2], [y1, y2])
+            self.right.draw()
 
     
 class Tree:
     """
     A phylogenetic tree
     """
-    def __init__(self, nodes, edges, root):
-        self.nodes = nodes
-        self.edges = edges
-        self.root = root
+    def __init__(self):
+        self.root = None
 
-    def plot(self, width, animal_list):
-        self.get_inorder()
-        if self.root:
-            self.root.plot(width, 0)
-        plt.axis("off")
-        plt.axis("equal")
-        plt.show()
+    def draw(self, threshold=None):
+        """
+        Draw the phylogenetic tree from the bottom up
 
-    def get_inorder(self):
+        Parameters
+        ----------
+        threshold: int
+            If specified, draw a vertical line showing a similarity
+            threshold for clustering
         """
-        Return the inorder traversal of the tree
-        """
-        keys = []
         if self.root:
-            self.root.get_inorder(keys)
-        return keys
+            maxsim = [0]
+            self.root.compute_y_coords(maxsim)
+            self.root.compute_x_coords(maxsim[0])
+            self.root.draw()
+            ax = plt.gca()
+            xlim = ax.get_xlim()
+            ax.set_xlim([xlim[0], xlim[1]+200])
+            if threshold:
+                ylim = ax.get_ylim()
+                plt.plot([threshold, threshold], [ylim[0], ylim[1]], 'k', linestyle='--', linewidth=3)
+                plt.title("Similarity Threshold = {}".format(threshold))
+            ax.set_yticks([])
+            plt.xlabel("Needleman-Wunsch Similarity")
+            plt.tight_layout()
+            plt.show()
+
+    def start_cluster_rec(self, thresh):
+        """
+        Method that starts the recursion for putting nodes in clusters
+
+        Parameters
+        ----------
+        thresh : int
+            Threshold for clustering 
+
+        Returns
+        -------
+        clusters : list
+            list of lists containing clusters of species
+
+        """
+        clusters = list()
+        node = self.root
+        self.kruskal_cluster(node, thresh, clusters)
+        print(clusters)
+        return clusters
+    
+    def kruskal_cluster(self, node, thresh, clusters):
+        """
+        Creates clusters based on if a species is greater than a given threshold
+
+        Parameters
+        ----------
+        node : TreeNode
+            Current species being evaluated
+        thresh : int
+            Threshold for clustering
+        clusters : list
+            List of lists containing clusters of species
+
+        """
+        if node.key:
+            keyList = [node.key]
+            clusters.append(keyList)  
+        elif node.sim >= thresh:
+            descendants = list()
+            self.enumerate_descendants(node, descendants)
+            clusters.append(descendants)
+        else:
+            if node.right:
+                self.kruskal_cluster(node.right, thresh, clusters)
+            if node.left:
+                self.kruskal_cluster(node.left, thresh, clusters)
+                
+    def enumerate_descendants(self, node, descendants):
+        """
+        Enumerates a list of all the descendents of a given species
+
+        Parameters
+        ----------
+        node : TreeNode
+            The name of a species
+        descendants : List
+            List containing all descendents of a given species
+
+        """
+        if node.key:
+            descendants.append(node.key)
+        if node.left:
+            self.enumerate_descendants(node.left, descendants)
+        if node.right:
+            self.enumerate_descendants(node.right, descendants)
 
 
 
@@ -151,13 +271,9 @@ def needleman_wunsch(s1, s2, _dict):
     return S[N, M]
 
 
-def construct_dendrogram(species_data, animal_list):
+def construct_dendrogram(species):
     """
     Construct a dendrogram from species data
-    1. Make a leaf node for each animal in the tree
-    2. Sort the pairs of distances in decreasing order of Needleman-Wunsch similarity
-    3. For each pair of animals in order of the above sort, check to see if they're part of the same connected component (using union find). If they are not, there's a new merge event. Create a new node in the tree with the root of each of their components as the two children (left/right is arbitrary here). Record the Needleman-Wunsch distance in that node.
-    4. Once all of the animals are connected, set the root of the tree to be the last merged node.
     
     Parameters
     ----------
@@ -170,54 +286,54 @@ def construct_dendrogram(species_data, animal_list):
     A instance of a Tree
         nodes and edges are filled in
     """
-    # 1. Make a leaf node for each animal in the tree
-    nodes = []
-    for species in animal_list:
-        nodes.append(PhylogeneticNode())
-        nodes[-1].data = species
 
-    #print([n.data for n in nodes])
-    # 2. Sort the pairs of distances in decreasing order of Needleman-Wunsch similarity
-    edges = []
-    animalToNumber = [i for i in range(len(animal_list))]
-    for i in range(len(animal_list)):
-        for j in range(i+1, len(animal_list)):
-            s1 = animal_list[i]
-            s2 = animal_list[j]
-            if s1 != s2:
-                edges.append((i, j, species_data[animal_list[i] + "," + animal_list[j]]))
+    species_list = list()
+    for s in species.keys():
+        species_list.append(PhylogeneticNode(s))   
     
-    #print(edges)
-    # create a tree from bottom up (from leaves to root)
-    # Sort the edges by distance
-    edge = sorted(edges, key = lambda e: e[2])
-    # Create a disjoint set
-    djset = UnionFind(len(nodes))
-    # Create a list of edges in the MST
-    new_edges = []
-    # Loop through the edges
-    new_nodes = []
-    for e in edge:
-        (i, j, d) = e
-        # If the two nodes are not in the same set, add the edge to the MST
-        if not djset.find(i, j):
-            djset.union(i, j)
-            new_edges.append(e)
-            new_nodes.append(PhylogeneticNode())
-            new_nodes[-1].data = animal_list[i] + "," + animal_list[j]
-            new_nodes[-1].left = nodes[i]
-            new_nodes[-1].right = nodes[j]
-            new_nodes[-1].needleman_wunsch_score = d
-    root = new_nodes[-1]
-
-    for n in new_nodes:
-        if n.left:
-            n.left.parent = n
-        if n.right:
-            n.right.parent = n
-
-    #print([(n.data, n.left.data, n.right.data) for n in new_nodes])
-    T = Tree(new_nodes, new_edges, root)
+    djset = UnionFind(len(species_list))
+    
+    
+    roots = list()
+    for node in species_list:
+        roots.append(node)
+    
+    
+    keys = dict()
+    for i, s in enumerate(list(species.keys())):
+        keys[s] = i
+    
+    #print(species_data)
+    #all_pairs = json.load(open("distances.json"))
+    all_pairs = json.load(open("distances.json"))["all_pairs"]
+    all_pairs = sorted(all_pairs.items(), key = lambda info: info[1], reverse=True)
+    #print(all_pairs)
+    for pair in all_pairs:
+        #print(pair)
+        current_pair = pair[0].split('_')
+        #print(current_pair)
+        for i in range(len(current_pair)-1):
+            species1 = current_pair[i]
+            species2 = current_pair[i+1]
+            #print(species1, species2)
+            s1_index = keys[species1]
+            s2_index = keys[species2]
+            s1_root = djset.root(s1_index)
+            s2_root = djset.root(s2_index)
+            if s1_root != s2_root:
+                #print(pair[1])
+                new_node = PhylogeneticNode(pair[1])
+                new_node.left = roots[s1_root]
+                new_node.right = roots[s2_root]
+                djset.union(s1_root, s2_root)
+                roots[s1_root] = new_node
+                roots[s2_root] = new_node
+    #print([n for n in new_nodes])
+    T = Tree()
+    T.root = new_node
+    print(T.root)
+    plt.figure(figsize=(10, 14))
+    T.draw()
     return T
     
 
@@ -256,10 +372,18 @@ def needleman_wunsch_part1():
     json.dump(data, open("distances.json", "w"))
     '''
 
-needleman_wunsch_part1()
-species = json.load(open("organisms.json"))
-species_data = json.load(open("distances.json"))
-t = construct_dendrogram(species_data, list(species.keys()))
-#print(t.edges)
-#print(t.get_inorder())
-t.plot(2, list(species.keys()))
+def main():
+    needleman_wunsch_part1()
+    species = json.load(open("organisms.json"))
+
+    t = construct_dendrogram(species)
+    #print(t.edges)
+    #print(t.get_inorder())
+    print("Cluster: 1260")
+    t.start_cluster_rec(1260)
+    print("Cluster: 1350")
+    t.start_cluster_rec(1340)
+    
+
+if __name__ == "__main__":
+    main()
