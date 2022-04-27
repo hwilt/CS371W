@@ -55,7 +55,7 @@ def rejection_sample_by_density(weights, target_points):
     X = np.zeros((target_points, 2))
     idx = 0
     while idx < target_points:
-        print(idx)
+        #print(idx)
         I = np.random.rand(10*target_points)*(weights.shape[0]-1)
         J = np.random.rand(10*target_points)*(weights.shape[1]-1)
         P = np.random.rand(10*target_points)
