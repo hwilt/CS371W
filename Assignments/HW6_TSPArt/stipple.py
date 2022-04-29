@@ -184,3 +184,26 @@ def density_filter(X, fac, k=1):
     return X[dd < q, :]
 
 
+def minimumSpanningTree(X, k=1):
+    """
+    Find the minimum spanning tree of a point cloud
+
+    Parameters
+    ----------
+    X: ndarray(N, 2)
+        Point cloud
+    k: int
+        How many neighbors to consider
+    
+    Returns
+    -------
+    ndarray(N, 2)
+        The minimum spanning tree
+    """
+    from scipy.spatial import KDTree
+    tree = KDTree(X)
+    dd, _ = tree.query(X, k=k+1)
+    dd = np.mean(dd[:, 1::], axis=1)
+    dd = np.argsort(dd)
+    return X[dd, :]
+
