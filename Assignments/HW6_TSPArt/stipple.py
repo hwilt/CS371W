@@ -184,9 +184,9 @@ def density_filter(X, fac, k=1):
     return X[dd < q, :]
 
 
-def minimumSpanningTree(X, k=1):
+def tourOfPoints(X, k=1):
     """
-    Find the minimum spanning tree of a point cloud
+    Find a tour of points
 
     Parameters
     ----------
@@ -197,13 +197,13 @@ def minimumSpanningTree(X, k=1):
     
     Returns
     -------
-    ndarray(N, 2)
-        The minimum spanning tree
+    ndarray(N)
+        Distance of nearest point
     """
     from scipy.spatial import KDTree
     tree = KDTree(X)
     dd, _ = tree.query(X, k=k+1)
     dd = np.mean(dd[:, 1::], axis=1)
-    dd = np.argsort(dd)
-    return X[dd, :]
+    return dd
+    
 

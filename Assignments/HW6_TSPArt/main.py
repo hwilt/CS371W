@@ -18,7 +18,7 @@ X = voronoi_stipple(I, thresh=0.3, target_points=2000, canny_sigma=0.8)
 X = density_filter(X, (X.shape[0]-4)/X.shape[0]) 
 
 # print out X
-tour = minimumSpanningTree(X)
+tour = tourOfPoints(X)
 print(tour)
 
 '''plt.figure(figsize=(10, 10))
