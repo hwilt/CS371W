@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numba import jit
+from unionfind import *
 
 
 def get_weights(I, thresh, p=1, canny_sigma=0):
@@ -184,9 +185,56 @@ def density_filter(X, fac, k=1):
     return X[dd < q, :]
 
 
+
+
+class GraphNode:
+    def __init__(self, index):
+        self.edges = []
+        self.index = index
+        self.onFire = False     # Whether this node is on fire
+        self.burnt = False      # Whether this node is burnt 
+    
+    def add_edge(self, node):
+        self.edges.append(node)
+
+def dist_of_edge(e):
+    return e[0]
+
+def get_mst_kruskal(nodes, edges):
+    edges = sorted(edges, key = dist_of_edge)
+    djset = UnionFind(len(nodes))
+    new_edges = []
+    for e in edges:
+        (i, j, d) = e
+        if not djset.find(i, j):
+            djset.union(i, j)
+            nodes[i].add_edge(nodes[j])
+            nodes[j].add_edge(nodes[i])
+            new_edges.append(e)
+    return new_edges
+
+from scipy.spatial import Delaunay
+
+def make_delaunay_graph(N, X):
+    x = X[:, 0]
+    y = X[:, 1]
+    nodes = []
+    for i in range(N):
+        n = GraphNode(i)
+        n.data = {'x':x[i], 'y':y[i]}
+        nodes.append(n)
+    tri = Delaunay(np.array([x, y]).T).simplices
+    edges = set()
+    for i in range(tri.shape[0]):
+        for k in range(3):
+            i1, i2 = tri[i, k], tri[i, (k+1)%3]
+            d = np.sqrt(np.sum((x[i1]-x[i2])**2 + (y[i1]-y[i2])**2))
+            edges.add((i1, i2, d))
+    return nodes, list(edges)
+
 def tourOfPoints(X, k=1):
     """
-    Find a tour of points
+    Find a tour of points in a graph using Kruskal algorithm and depth first search
 
     Parameters
     ----------
@@ -198,12 +246,47 @@ def tourOfPoints(X, k=1):
     Returns
     -------
     ndarray(N)
-        Distance of nearest point
+        Depth first traversal of the point cloud (starting at the first point) by index
     """
-    from scipy.spatial import KDTree
-    tree = KDTree(X)
-    dd, _ = tree.query(X, k=k+1)
-    dd = np.mean(dd[:, 1::], axis=1)
-    return dd
+
+    #nodes = [GraphNode(i) for i in range(X.shape[0])]
+
+    nodes, edges = make_delaunay_graph(X.shape[0], X)
+    edges = get_mst_kruskal(nodes, edges)
+
+    #tour = [node.index for node in nodes]
+    tour = []
+    stack = [nodes[0]]
+    nodes[0].onFire = True
+    while len(stack) > 0:
+        node = stack.pop()
+        node.burnt = True
+        tour.append(node.index)
+        for edge in node.edges:
+            if not edge.onFire:
+                edge.onFire = True
+                stack.append(edge)
+    return tour
     
 
+def swapping():
+    pass
+    
+def improvementTour(tour):
+    """
+    While an improvement is possible
+        Look through each pair of edges in the current tour until you find a pair i, j where d = distance
+            d(i, j) + d(i+1, j+1) < d(i, j+1) + d(i+1, j)
+        Be sure that i and j are not the first or last points in the tour, as swapping those might mess things up.
+
+    Create a new tour by swapping the edges
+    """
+    pass
+
+        
+    
+
+    
+
+    
+    

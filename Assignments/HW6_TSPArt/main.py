@@ -19,7 +19,9 @@ X = density_filter(X, (X.shape[0]-4)/X.shape[0])
 
 # print out X
 tour = tourOfPoints(X)
-print(tour)
+#print(tour)
+
+tour = improvementTour(tour)
 
 '''plt.figure(figsize=(10, 10))
 plt.scatter(X[:, 0], X[:, 1], 2)
@@ -30,4 +32,5 @@ plt.figure(figsize=(10, 10))
 plt.plot(X[tour, 0], X[tour, 1], c='k')
 plt.scatter(X[tour, 0], X[tour, 1], s=15, c=np.arange(len(tour)), cmap='magma_r')
 plt.gca().set_facecolor((0.8, 0.8, 0.8))
+#plt.savefig("penguins_tour_improvement.svg", bbox_inches='tight')
 plt.show()
