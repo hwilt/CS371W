@@ -7,7 +7,6 @@ from unionfind import *
 def get_weights(I, thresh, p=1, canny_sigma=0):
     """
     Create pre-pixel weights based on image brightness
-
     Parameters
     ----------
     I: ndarray(M, N)
@@ -40,7 +39,6 @@ def get_weights(I, thresh, p=1, canny_sigma=0):
 def rejection_sample_by_density(weights, target_points):
     """
     Sample points according to a particular density, by rejection sampling
-
     Parameters
     ----------
     ndarray(M, N)
@@ -90,7 +88,6 @@ def get_centroids(mask, N, weights):
 def voronoi_stipple(I, thresh, target_points, p=1, canny_sigma=0, n_iters=10, do_plot=False):
     """
     An implementation of the method of [2]
-
     [2] Adrian Secord. Weighted Voronoi Stippling
     
     Parameters
@@ -162,7 +159,6 @@ def voronoi_stipple(I, thresh, target_points, p=1, canny_sigma=0, n_iters=10, do
 def density_filter(X, fac, k=1):
     """
     Filter out points below a certain density
-
     Parameters
     ----------
     X: ndarray(N, 2)
@@ -194,11 +190,11 @@ class GraphNode:
         self.onFire = False     # Whether this node is on fire
         self.burnt = False      # Whether this node is burnt 
     
-    def add_edge(self, node):
+    def add_neighbor(self, node):
         self.edges.append(node)
 
 def dist_of_edge(e):
-    return e[0]
+    return e[2]
 
 def get_mst_kruskal(nodes, edges):
     edges = sorted(edges, key = dist_of_edge)
@@ -208,8 +204,8 @@ def get_mst_kruskal(nodes, edges):
         (i, j, d) = e
         if not djset.find(i, j):
             djset.union(i, j)
-            nodes[i].add_edge(nodes[j])
-            nodes[j].add_edge(nodes[i])
+            nodes[i].add_neighbor(nodes[j])
+            nodes[j].add_neighbor(nodes[i])
             new_edges.append(e)
     return new_edges
 
@@ -232,10 +228,22 @@ def make_delaunay_graph(N, X):
             edges.add((i1, i2, d))
     return nodes, list(edges)
 
+def draw_2d_graph(nodes, edges, draw_nodes=True, linewidth=2):
+    ax = plt.gca()
+    ax.set_facecolor((0.9, 0.9, 0.9))
+    plt.figure(figsize=(10, 10))
+    for (i, j, d) in edges:
+        x1, y1 = nodes[i].data['x'], nodes[i].data['y']
+        x2, y2 = nodes[j].data['x'], nodes[j].data['y']
+        plt.plot([x1, x2], [y1, y2], linewidth=linewidth)
+    for i, n in enumerate(nodes):
+        if draw_nodes:
+            plt.scatter(n.data['x'], n.data['y'], 100, c='k')
+    plt.show()
+
 def tourOfPoints(X, k=1):
     """
     Find a tour of points in a graph using Kruskal algorithm and depth first search
-
     Parameters
     ----------
     X: ndarray(N, 2)
@@ -252,7 +260,9 @@ def tourOfPoints(X, k=1):
     #nodes = [GraphNode(i) for i in range(X.shape[0])]
 
     nodes, edges = make_delaunay_graph(X.shape[0], X)
+    #draw_2d_graph(nodes, edges)
     edges = get_mst_kruskal(nodes, edges)
+    #draw_2d_graph(nodes, edges)
 
     #tour = [node.index for node in nodes]
     tour = []
@@ -266,23 +276,48 @@ def tourOfPoints(X, k=1):
             if not edge.onFire:
                 edge.onFire = True
                 stack.append(edge)
+
+    #tour = improvementTour(tour, X)
+
+    #tour = [node.index for node in tour]
+    
     return tour
+
+
+def distance(x, y):
+    return np.sqrt(np.sum((x[i1]-x[i2])**2 + (y[i1]-y[i2])**2))
+
+
+@jit(nopython=True)
+def swapping_edges(tour, i, j):
+    """
+    Find the next two indices whose edges can be swapped
+
+    Swapping Order:
+    From index 0 to index i in the original tour
+    From index i+1 t oindex j+1 from the original tour in reverse order
+    From index j+1 to the end in the original tour
+    """
+
+    
+    
     
 
-def swapping():
-    pass
+
+
     
-def improvementTour(tour):
+def improvementTour(tour, X):
     """
     While an improvement is possible
-        Look through each pair of edges in the current tour until you find a pair i, j where d = distance
+        Look through each pair of edges in the current tour until you find a pair i, j where (d = distance)
             d(i, j) + d(i+1, j+1) < d(i, j+1) + d(i+1, j)
         Be sure that i and j are not the first or last points in the tour, as swapping those might mess things up.
 
     Create a new tour by swapping the edges
     """
-    pass
-
+    
+    
+    
         
     
 
